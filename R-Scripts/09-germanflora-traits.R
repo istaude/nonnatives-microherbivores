@@ -1,4 +1,4 @@
-source("Rscripts/00-preamble.R")
+source("R-Scripts/00-preamble.R")
 
 # the aim of this script is to test whether the effect of range size on
 # microherbivore interaction richness is actually driven by traits

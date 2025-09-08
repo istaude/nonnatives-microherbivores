@@ -1,7 +1,8 @@
-source("Rscripts/00-preamble.R")
+source("R-Scripts/00-preamble.R")
 
 
 # load microherbivore data ------------------------------------------------
+
 
 # herbivory interaction data from https://bladmineerders.nl/
 relations <- read_csv("Data/relations.csv", col_names = FALSE)
@@ -477,4 +478,108 @@ d_summary_sp_only %>%
 # most use leaves, and then stems, flower, roots, unknown, fruit,
 # leaf bud, root collar, dead wood (very few, interesting)
 
+
+# which roles do the microherbivores have in the data
+roles <- read_csv("Data/codes.csv", col_names = FALSE) %>% 
+  filter(X1 == "role") %>% 
+  rename(role = X2) %>% 
+  select(role, X4)
+
+relations <- read_csv("Data/relations.csv", col_names = FALSE)
+relations <- relations %>% 
+  rename(
+    microherbivore_species = X1,
+    microherbivore_family = X2,
+    organ = X3,
+    role = X4,
+    phase = X5,
+    plant_species = X6,
+    plant_family = X7
+  )
+
+roles <- left_join(relations, roles) %>% 
+  select(microherbivore_species, role = X4) %>% distinct %>% 
+  count(role)
+
+# explanatory labels
+role_labels <- c(
+  "borer"              = "Borers (larvae tunneling in stems, seeds, or wood)",
+  "cancer"             = "Cankers (woody tissue deformities; fungi or bacteria)",
+  "down"               = "Downy mildews (oomycetes)",
+  "film"               = "Surface fungal films",
+  "gall"               = "Galls (tissue swellings; mostly insects or mites)",
+  "hidden"             = "Concealed feeders or infections (inside tissues; signs unclear)",
+  "inquiline"          = "Inquilines (living in galls or mines made by others)",
+  "leaf spot"          = "Leaf spots (necrotic lesions; fungi or bacteria)",
+  "macro fungus"       = "Macro fungi",
+  "miner"              = "Leaf miners (larvae feeding within leaves)",
+  "miner > borer"      = "Miner to borer (starts as mine, then bores)",
+  "oviposition scar"   = "Oviposition scars (egg laying marks)",
+  "predator, parasite" = "Predators or hyperparasites (within galls or mines)",
+  "pustule"            = "Pustules (fungal eruptions; rusts or smuts)",
+  "scale"              = "Scale insects (sap feeders)",
+  "stripe"             = "Stripe diseases (linear lesions; mostly fungal)",
+  "unknown"            = "Unclassified plant damage",
+  "vagrant"            = "Vagrants (eriophyid mites deforming tissues)",
+  "witches' broom"     = "Witches' broom (dense shoot proliferation)",
+  "NA"                 = "Unspecified"
+)
+
+roles_plot <- roles %>%
+  filter(!is.na(role)) %>%
+  mutate(
+    role_exp = recode(role, !!!role_labels)
+  ) %>%
+  arrange(n) %>%
+  mutate(role_exp = factor(role_exp, levels = role_exp))
+
+
+col_point <- "#26a97d"   
+col_seg   <- "grey70"    
+col_line  <- "black"    
+
+# constant offset in y-units (before coord_flip is applied)
+offset <- 0.04 * diff(range(roles_plot$n, na.rm = TRUE))
+
+ggplot(roles_plot, aes(x = role_exp, y = n)) +
+  geom_segment(aes(xend = role_exp, y = 0, yend = n),
+               linewidth = 0.8, color = col_seg) +
+  geom_point(shape = 21, size = 4, stroke = 0.6,
+             fill = col_point, color = col_line) +
+  geom_text(
+    aes(label = scales::comma(n)),
+    hjust = 0,                 
+    nudge_y = offset,          
+    vjust = 0.5,
+    size = 2.8,
+    family = "roboto",
+    fontface = "italic"
+  ) +
+  expand_limits(y = max(roles_plot$n, na.rm = TRUE) + 4*offset) +
+  coord_flip(clip = "off") +
+  labs(
+    x = NULL,
+    y = "Number of microherbivore species",
+    title = NULL,
+    subtitle = NULL
+  ) +
+  theme_minimal(base_family = "roboto") +
+  theme(
+    panel.grid = element_blank(),
+    legend.position = "none",
+    plot.margin = margin(0, 10, 0, 0),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    axis.title.y = element_text(size = 11)
+  ) +
+  expand_limits(y = max(roles_plot$n, na.rm = TRUE) * 1.08)
+
+# microherbivore roles figure
+showtext_opts(dpi=600)
+ggsave(filename = "Figures/microherbivore-roles.png",
+       bg = "white",
+       height = 4,
+       width = 7,
+       dpi = 600)
+showtext_opts(dpi=96)
 

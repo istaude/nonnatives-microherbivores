@@ -1,4 +1,4 @@
-source("Rscripts/00-preamble.R")
+source("R-Scripts/00-preamble.R")
 
 # the aim of this script is to claculate the geographic distance of a species
 # native range centroid from the geographic center of europe.

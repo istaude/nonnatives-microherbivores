@@ -1,9 +1,10 @@
-source("Rscripts/00-preamble.R")
+source("R-Scripts/00-preamble.R")
 
 # statistical analysis ----------------------------------------------------
 
 # first prep data
 dt_filled <- read.csv("Data/dt_filled.csv")
+#View(dt_filled)
 
 dt_filled <- dt_filled %>%
   filter(!is.na(woodiness)) %>%
