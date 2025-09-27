@@ -1,8 +1,8 @@
 source("R-Scripts/00-preamble.R")
 
-# the aim of this script is to test whether the effect of range size on
-# microherbivore interaction richness is actually driven by traits
-# use german flora because trait avaliability is good.
+# test whether the effect of range size on microherbivore interaction richness 
+# is actually driven by traits. use german flora because trait avaliability is good
+# also to check whether results replicate in a well sampled region (that is germany)
 
 
 # load data ---------------------------------------------------------------
@@ -74,12 +74,12 @@ print(pr1_data)
   
   # Colors
   scale_color_manual(values = c(
-    "Woody" = "#6E6E6E",       # sleek dark grey line
-    "Non-Woody" = "#78c1b8"    # elegant purple
+    "Woody" = "#6E6E6E",       
+    "Non-Woody" = "#78c1b8"    
   )) +
   scale_fill_manual(values = c(
-    "Woody" = "#C8C8C8",       # mid grey fill, better contrast
-    "Non-Woody" = "#a3ffda"    # softer purple fill
+    "Woody" = "#C8C8C8",       
+    "Non-Woody" = "#a3ffda"    
   )) +
   
   # Labels and theme
@@ -130,12 +130,12 @@ print(pr2_data)
     alpha = 0.2       
   ) +
   scale_color_manual(values = c(
-    "Woody" = "#6E6E6E",       # sleek dark grey line
-    "Non-Woody" = "#78c1b8"    # elegant purple
+    "Woody" = "#6E6E6E",       
+    "Non-Woody" = "#78c1b8"    
   )) +
   scale_fill_manual(values = c(
-    "Woody" = "#C8C8C8",       # mid grey fill, better contrast
-    "Non-Woody" = "#a3ffda"    # softer purple fill
+    "Woody" = "#C8C8C8",       
+    "Non-Woody" = "#a3ffda"    
   )) +
 
   labs(
@@ -193,7 +193,6 @@ print(pr1_data)
 
 (fig_s6c <- ggplot(data = data, aes(x = AOO, y = number_herb)) +
     
-    # Points: subtle fill, clear border
     geom_point(
       pch = 21,
       aes(fill = Woodiness, col = Woodiness),
@@ -201,11 +200,9 @@ print(pr1_data)
       size = 2, show.legend = FALSE
     ) +
     
-    # Axes in log scale
     scale_x_log10() +
     scale_y_log10() +
     
-    # Smooth lines and ribbons
     geom_smooth(
       data = pr1_data,
       aes(
@@ -222,17 +219,15 @@ print(pr1_data)
       alpha = 0.2       
     ) +
     
-    # Colors
     scale_color_manual(values = c(
-      "Woody" = "#6E6E6E",       # sleek dark grey line
-      "Non-Woody" = "#78c1b8"    # elegant purple
+      "Woody" = "#6E6E6E",       
+      "Non-Woody" = "#78c1b8"   
     )) +
     scale_fill_manual(values = c(
-      "Woody" = "#C8C8C8",       # mid grey fill, better contrast
-      "Non-Woody" = "#a3ffda"    # softer purple fill
+      "Woody" = "#C8C8C8",       
+      "Non-Woody" = "#a3ffda"   
     )) +
     
-    # Labels and theme
     labs(
       x = "Range size in Germany\n[P(occurrence) summed across 5 x 5 km cells]",
       y = "Microherbivore species per plant"
@@ -279,12 +274,12 @@ print(pr2_data)
       alpha = 0.2       
     ) +
     scale_color_manual(values = c(
-      "Woody" = "#6E6E6E",       # sleek dark grey line
-      "Non-Woody" = "#78c1b8"    # elegant purple
+      "Woody" = "#6E6E6E",       
+      "Non-Woody" = "#78c1b8"    
     )) +
     scale_fill_manual(values = c(
-      "Woody" = "#C8C8C8",       # mid grey fill, better contrast
-      "Non-Woody" = "#a3ffda"    # softer purple fill
+      "Woody" = "#C8C8C8",       
+      "Non-Woody" = "#a3ffda"    
     )) +
     
     labs(
@@ -308,6 +303,7 @@ fig_s6c / fig_s6d
 
 
 # create one plot ---------------------------------------------------------
+
 (fig_s6a + ggtitle("a") + fig_s6c + ggtitle("b")) / (fig_s6b + fig_s6d) +
   plot_layout(guides = "collect") +
   plot_annotation(tag_levels = NULL) & 

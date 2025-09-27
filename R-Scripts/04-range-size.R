@@ -8,7 +8,6 @@ dt_filled <- read_csv("Data/dt_filled.csv")
 # set up the species vector
 species <- unique(dt_filled$taxon_name)
 
-
 # initialize an empty data frame to store results
 species_keys_df <- data.frame(species = character(), 
                               usageKey = integer(), 
@@ -64,7 +63,7 @@ europe_shape <- tdwg %>%
 # check
 plot(europe_shape)
 
-# Initialize an empty list to store results
+# initialize an empty list to store results
 results_list <- list()
 
 
@@ -187,9 +186,10 @@ dr <- read_csv("Data/dr.csv")
 
 
 View(dr)
+
 # inspect data ------------------------------------------------------------
 
-# some first viz
+# some first visualization
 ggplot(dr %>% 
          filter(native_to_europe == FALSE) %>% 
          filter(!is.na(Woodiness)), aes(x = area_km2, 
@@ -199,7 +199,6 @@ ggplot(dr %>%
   geom_smooth(method = "lm") +
   scale_x_log10() +
   scale_y_log10()
-
 
 # connection between min first record and range size
 ggplot(dr %>% 
@@ -211,9 +210,6 @@ ggplot(dr %>%
   geom_point() + 
   geom_smooth(method = "lm") +
   scale_y_log10()
-
-
-
 
 # this would make an interesting SI plot, make it pub-ready
 ggplot(dr %>% 
@@ -243,12 +239,12 @@ ggplot(dr %>%
   
   # Colors
   scale_color_manual(values = c(
-    "Woody" = "#6E6E6E",       # sleek dark grey line
-    "Non-woody" = "#792c9e"    # elegant purple
+    "Woody" = "#6E6E6E",       
+    "Non-woody" = "#792c9e"    
   )) +
   scale_fill_manual(values = c(
-    "Woody" = "#C8C8C8",       # mid grey fill, better contrast
-    "Non-woody" = "#d1b4e0"    # softer purple fill
+    "Woody" = "#C8C8C8",       
+    "Non-woody" = "#d1b4e0"    
   )) +
   
   # Labels and theme

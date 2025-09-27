@@ -1,8 +1,7 @@
 source("R-Scripts/00-preamble.R")
 
-# the aim of this script is to test whether non-natives that have accumulated 
-# similar number of interactions compared to native plants, still interact mostly
-# with genralist microherbivores
+# test whether non-natives that have accumulated similar number of interactions 
+# compared to native plants, still interact more with genralist microherbivores
 
 # load data ---------------------------------------------------------------
 
@@ -28,6 +27,7 @@ nrow(data) # thats a good number to work with
 # which non-native species
 non_natives <- unique(data$taxon_name)
 
+
 # interaction data --------------------------------------------------------
 
 # plant microherbivore
@@ -48,7 +48,7 @@ rh <- rh %>%
   summarize(avg_hostbreadth = mean(n),
             native_to_europe = first(native_to_europe))
 
-# ok now we have to reduce the dataset to the non-natives from above and the
+# now we have to reduce the dataset to the non-natives from above and the
 # natives that we had in fig 1
 dt_filled <- read.csv("Data/dt_filled.csv")
 
@@ -75,12 +75,9 @@ rh_selected <- rh_selected %>%
 ggplot(rh_selected, aes(x = native_to_europe, y = log(avg_hostbreadth), col = woodiness))+
   geom_boxplot()
 
-
 # check whether the non-natives in fact interact with similar numbers of microherbivores
 ggplot(rh_selected, aes(x = native_to_europe, y = log(n), col = woodiness))+
   geom_boxplot()
-
-
 
 
 # model -------------------------------------------------------------------
@@ -178,7 +175,7 @@ ggplot(rh_selected,
   theme(
     panel.grid = element_blank(),
     legend.position = "none",
-    plot.margin = margin(0, 0, 0, 0),  # remove plot margins
+    plot.margin = margin(0, 0, 0, 0), 
     axis.text.x = element_blank(),
     axis.ticks.y = element_line(),
     axis.title.y = element_text(size = 11),
@@ -552,7 +549,7 @@ spec_cols <- c(
   mono  = "#b5e1d2",
   oligo = "#7cc7b2",
   meso  = "#5aa7c7",
-  poly  = "#792c9e"   # echoes your purple for a “more generalist” highlight
+  poly  = "#792c9e"  
 )
 
 ggplot(binned, aes(x = bin, y = prop_mean, fill = specialization)) +
@@ -563,7 +560,7 @@ ggplot(binned, aes(x = bin, y = prop_mean, fill = specialization)) +
                      expand = expansion(mult = c(0, 0.02))) +
   labs(
     x = "Years since introduction (binned)",
-    y = "Weighted mean proportion"   # or: "Weighted mean per-plant proportion"
+    y = "Weighted mean proportion"  
   ) +
   theme_minimal(base_family = "roboto") +
   theme(

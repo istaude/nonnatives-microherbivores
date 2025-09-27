@@ -3,8 +3,11 @@ source("R-Scripts/00-preamble.R")
 
 # load microherbivore data ------------------------------------------------
 
-
 # herbivory interaction data from https://bladmineerders.nl/
+# please contact Dr Willem N Ellis (wnellis@bladmineerders.nl) to get the most
+# up to date data
+
+# read
 relations <- read_csv("Data/relations.csv", col_names = FALSE)
 names(relations)
 
@@ -44,6 +47,7 @@ kew_dis_europe_native <- wcvp_distributions %>%
 
 # first check
 kew_dis_europe_native %>% count(native_to_europe)
+
 
 # save
 write.csv(kew_dis_europe_native, "Data/kew_dis_europe_native.csv", row.names = FALSE)
@@ -306,15 +310,11 @@ dt_filled %>% filter(!is.na(woodiness)) %>% nrow
 write.csv(dt_filled, "Data/dt_filled.csv", row.names = FALSE)
 
 
-
-
-
 # si figures --------------------------------------------------------------
 
-
-# viz of europe definition for si
+# visualizaiton of europe definition for si
 # get a map out of shapefiles from bot countries 
-# WGS84: Level 3 regions
+# WGS84: level 3 regions
 tdwg <- st_read("bot_countries/wgsrpd-master/level3/level3.shp")
 
 # bot countries
@@ -354,8 +354,6 @@ ggsave(dpi = 600,
 showtext_opts(dpi=96)
 
 
-
-
 # histogram of interactions of plants with microherbivores
 ggplot(d_summary_sp_only, aes(x = n)) +
   geom_histogram(fill = "steelblue", color = "black", bins = 40, alpha = 0.8) +
@@ -370,6 +368,7 @@ ggplot(d_summary_sp_only, aes(x = n)) +
 ggsave(filename = "Figures/Hist_plants.png",
        height = 7,
        width = 8)
+
 
 # histogram of interactions of microherbivores with plants
 ggplot(dm_summary, aes(x = n)) +

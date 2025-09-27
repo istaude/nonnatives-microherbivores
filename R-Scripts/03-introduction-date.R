@@ -1,6 +1,7 @@
 source("R-Scripts/00-preamble.R")
 
-# temporal factors in microherbivores adaption --------------------------------
+
+# introduction date of non-natives ----------------------------------------
 
 # load data, access: https://zenodo.org/records/10039630
 GlobalAlienSpeciesFirstRecordDatabase_v3_1_freedata <- read_excel(
@@ -16,13 +17,12 @@ unique(GlobalAlienSpeciesFirstRecordDatabase$LifeForm)
 PlantAlienSpeciesFR <- GlobalAlienSpeciesFirstRecordDatabase %>%
   filter(LifeForm == "Vascular plants")
 
-#inspect data
+# inspect data
 str(PlantAlienSpeciesFR)
 summary(PlantAlienSpeciesFR)
+unique(PlantAlienSpeciesFR$Region) # view all regions in the alien species first record table
 
-unique(PlantAlienSpeciesFR$Region)    # view all regions in the alien species first record table
-
-# looked up all european regions and created a value by hand for all european regions
+# looked up and created a value by hand for all european regions
 european_regions3 <- c("United Kingdom", 
                        "Ukraine", 
                        "Switzerland", 
@@ -66,7 +66,7 @@ european_regions3 <- c("United Kingdom",
                        "Andorra", 
                        "Albania")
 
-# see if there is data for every European region
+# see if there is data for every european region
 PlantAlienSpeciesFR %>% 
   select(Region) %>% 
   distinct %>% 
@@ -74,26 +74,23 @@ PlantAlienSpeciesFR %>%
   right_join(data.frame(Region = european_regions3)) %>% 
   View()
 
-
-# filter by European regions
+# filter by european regions
 alien_species_europe <- PlantAlienSpeciesFR %>%
   filter(Region %in% european_regions3)
 unique(alien_species_europe$Region)
 
-# identifying the first record in Europe for every alien plant species
+# identifying the first record in europe for every alien plant species
 min_first_record_alien <- alien_species_europe %>%
   group_by(TaxonName) %>%                         
   summarise(min_first_record = min(FirstRecord, na.rm = TRUE))
 View(min_first_record_alien)
 
-#taxonomic harmonization
+# taxonomic harmonization
 first_record_wcvp_match <- wcvp_match_names(min_first_record_alien, 
                                             name_col = "TaxonName", 
                                             fuzzy = TRUE)
 
-# give preference to accepted (and then synonyms) names, 
-# if there are multiple rows for one and 
-# the same species
+# give preference to accepted names 
 wcvp_acc <- first_record_wcvp_match %>% 
   select(TaxonName,
          wcvp_status, 
@@ -119,7 +116,7 @@ min_first_record_alien %>%
   count(taxon_name) %>% 
   arrange(desc(n))
 
-# take min introduction name for duplications
+# take min introduction date
 min_first_record_alien_t <- min_first_record_alien %>% 
   group_by(taxon_name) %>% 
   summarise(min_fr = min(min_first_record )) %>% 
@@ -138,13 +135,13 @@ min_first_record_alien_t <- read_delim("Data/min_first_record_alien_t.csv", deli
 # load microherbivore data (with plant origin data, woodiness etc.)
 dt_filled <- read_csv("Data/dt_filled.csv")
 
-# join interaction data with first records data
+# join interaction data with first introduction date data
 dx <- left_join(dt_filled, min_first_record_alien_t)
 
 # save merged data table
 write.csv(dx, "Data/dx.csv", row.names = FALSE)
 
-# check the spp. with an earlier than 1500 BC introduction date
+# check the spp. with an earlier than 1500
 dx <- read_csv("Data/dx.csv")
 filtered_dx <- dx %>% 
   filter(min_fr >= 1500) %>% 
@@ -158,7 +155,7 @@ after_dx$taxon_name
 
 sum(!is.na(dx$min_fr) & dx$native_to_europe == FALSE)
 
-# some first viz
+# some first visualization
 ggplot(dx %>% 
          filter(min_fr > 1500) %>% 
          filter(native_to_europe == FALSE), 

@@ -3,12 +3,14 @@ source("R-Scripts/00-preamble.R")
 # load data ---------------------------------------------------------------
 
 data <- read_csv("Data/mean_centroids_filled.csv")
+#View(data)
 
 # ensure certain data thresholds are met
-# non-natives must have there minimum introduction data later than 1500 in Europe
+# non-natives must have their minimum introduction data later than 1500 
+# (or to be very precise 1489) in europe
 data <- data %>% filter(min_fr > 1500)
 
-# ensure we have non-nativs that are at least 2500 km away from center of europe
+# ensure we have non-natives that are at least 2500 km away from center of europe
 # with their centroid
 data <- data %>% 
   filter(distance_to_europe_center > 2500)
@@ -19,6 +21,7 @@ data %>%
          rel_status, family, taxon_name) %>% 
   na.omit() %>% 
   nrow()
+
 
 # model -------------------------------------------------------------------
 
@@ -42,12 +45,12 @@ mod_1 <- lme4::lmer(log10_n ~ log10_area * woodiness +
                       rel_status * woodiness + 
                       (1 | family), data)
 
-
+# same model just with lmertest instead of lme4
 mod_1.2 <- lmerTest::lmer(log10_n ~ log10_area * woodiness + 
                             min_fr * woodiness + 
                             distance_to_europe_center * woodiness + 
                             rel_status * woodiness + 
-                          (1|family), data)
+                          (1 | family), data)
 
 anova(mod_1.2)  
 summary(mod_1.2) 
@@ -58,7 +61,7 @@ simulationOutput <- simulateResiduals(fittedModel = mod_1, n = 1000)
 plot(simulationOutput)
 
 # understand how much variance each predictor explains
-# Run partR2 (takes a bit of time)
+# run partR2 (takes a bit of time)
 res_grouped <- partR2(
   mod_1,
   partbatch = list(
@@ -93,6 +96,8 @@ summary(contrast(emmeans(mod_1, ~ rel_status | woodiness), method = "pairwise"))
 10^0.424
 10^0.458
 10^0.445
+
+
 # data visualization ------------------------------------------------------
 
 # predicted lines for each predictor variable
@@ -160,6 +165,7 @@ new_data_intro %>%
 2025 - 1840
 
 
+
 # geographic proximity
 pr3 <- predict_response(mod_1, c("distance_to_europe_center", "woodiness"))
 pr3_data <- pr3 %>% as.data.frame()
@@ -212,15 +218,14 @@ pr1_occupancy <- ggplot(data = data, aes(x = area_km2, y = n)) +
   
   # Colors
   scale_color_manual(values = c(
-    "Woody" = "#6E6E6E",       # sleek dark grey line
-    "Non-woody" = "#792c9e"    # elegant purple
+    "Woody" = "#6E6E6E",       
+    "Non-woody" = "#792c9e"   
   )) +
   scale_fill_manual(values = c(
-    "Woody" = "#C8C8C8",       # mid grey fill, better contrast
-    "Non-woody" = "#d1b4e0"    # softer purple fill
+    "Woody" = "#C8C8C8",       
+    "Non-woody" = "#d1b4e0"    
   )) +
   
-  # Labels and theme
   labs(
     x = "Range size in Europe [km²]",
     y = "Microherbivore species per plant"

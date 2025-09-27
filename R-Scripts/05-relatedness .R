@@ -1,13 +1,14 @@
 source("R-Scripts/00-preamble.R")
 
-# load data --------------------------------------------------------------------
-dr <- read_csv("Data/dr.csv")
-kew_dis_europe_native <- read_csv("Data/kew_dis_europe_native.csv")
-
 # do non-native plants with close relatives (same genus) in Europe 
 # interact with more microherbivore species compared to those without close relatives? 
 # this could e.g., be due to pre-adapted herbivores that can exploit similar traits 
 # in the introduced plants
+
+# load data --------------------------------------------------------------------
+dr <- read_csv("Data/dr.csv")
+kew_dis_europe_native <- read_csv("Data/kew_dis_europe_native.csv")
+
 europe_natives <- kew_dis_europe_native %>% 
   filter(native_to_europe == T) %>% 
   left_join(
@@ -46,7 +47,6 @@ no_relations <- dr_non_native %>%
 nrow(related_genus)    # 2484
 nrow(related_family)    # 911
 nrow(no_relations)    # 140
-# the most plants have relatives on genus level
 
 # rename the three relationship status and bind them in a data table
 related_genus$rel_status <- "Genus in Europe"
@@ -58,7 +58,7 @@ relatedness <- rbind(related_genus, related_family, no_relations)
 relatedness<- left_join(relatedness, dr %>% select(taxon_name, n))
 names(relatedness)
 
-# save table
+# save
 write.csv(relatedness, "Data/relatedness.csv", row.names = FALSE)
 
 
@@ -76,13 +76,13 @@ relatedness$rel_status <- factor(relatedness$rel_status,
 relatedness %>% filter(is.na(area_km2))
 summary(relatedness$area_km2)
 
-# some first viz
-# considering also woodiness, and spatial distribution (area)
+# some first visualization
+# considering also woodiness, and range size
 ggplot(relatedness %>% filter(!is.na(Woodiness)),
        aes(x = rel_status,
-           y = n/log(area_km2)) )+
-  facet_wrap(~Woodiness)+
-  geom_jitter(alpha=0.1)+
+           y = n/log(area_km2)) ) +
+  facet_wrap(~Woodiness) +
+  geom_jitter(alpha=0.1) +
   geom_boxplot(alpha=0.3, outliers = F) +
   scale_y_log10() +
   coord_flip() 

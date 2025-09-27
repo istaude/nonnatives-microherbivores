@@ -1,10 +1,9 @@
-#preamble---------------------------------------------------------------
+# preamble---------------------------------------------------------------
 
 library(readr)
 library(tidyverse)
-library(rWCVP)
-library(rWCVPdata)
-#remotes::install_github("matildabrown/rWCVPdata")
+library(rWCVP) 
+library(rWCVPdata) #remotes::install_github("matildabrown/rWCVPdata")
 library(data.table)
 library(lme4)
 library(lmerTest)
@@ -41,3 +40,4 @@ font_add_google("Roboto Condensed", "roboto")
 conflict_prefer("select", "dplyr")
 conflict_prefer("filter", "dplyr")
 conflict_prefer("first", "dplyr")
+conflict_prefer("filter", "dplyr")

@@ -2,9 +2,9 @@ source("R-Scripts/00-preamble.R")
 
 # statistical analysis ----------------------------------------------------
 
-# first prep data
+# first prepare data
 dt_filled <- read.csv("Data/dt_filled.csv")
-#View(dt_filled)
+# View(dt_filled)
 
 dt_filled <- dt_filled %>%
   filter(!is.na(woodiness)) %>%
@@ -17,24 +17,25 @@ dt_filled <- dt_filled %>%
 
 # model
 # with log_transformed response
-conflicts_prefer(lme4::lmer)
-mod_r <- robustlmm::rlmer(log10(n) ~ plant_origin * woodiness +
-              (1|family), data = dt_filled)
-tab_model(mod_r)
-tab_model(mod_r, file = "model_output.doc")
-
-plot(mod_r)
-
 mod <- lmerTest::lmer(log10(n) ~ plant_origin * woodiness +
-                          (1|family), data = dt_filled)
+                        (1|family), data = dt_filled)
 
 summary(mod)
 anova(mod)
 plot(mod)
 
-# model diagnostics look ok
+# model diagnostics
 sim_res <- simulateResiduals(fittedModel = mod)
 plot(sim_res)
+
+# also run robust regression
+conflicts_prefer(lme4::lmer)
+mod_r <- robustlmm::rlmer(log10(n) ~ plant_origin * woodiness +
+              (1|family), data = dt_filled)
+# same results
+tab_model(mod_r)
+tab_model(mod_r, file = "model_output.doc")
+
 
 
 # visualize result
@@ -96,7 +97,7 @@ ggplot(dt_filled,
     data = n_counts,
     aes(
       x = plant_origin,
-      y = 1,  # or slightly below your data range
+      y = 1,
       label = label,
       color = plant_origin
     ),
@@ -122,7 +123,7 @@ ggplot(dt_filled,
   theme(
     panel.grid = element_blank(),
     legend.position = "none",
-    plot.margin = margin(0, 0, 0, 0),  # remove plot margins
+    plot.margin = margin(0, 0, 0, 0), 
     axis.text.x = element_text(size = 10, vjust = -1),
     axis.ticks.y = element_line(),
     axis.title.y = element_text(size = 11),

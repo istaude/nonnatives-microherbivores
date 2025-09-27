@@ -1,16 +1,17 @@
 source("R-Scripts/00-preamble.R")
 
-# the aim of this script is to claculate the geographic distance of a species
-# native range centroid from the geographic center of europe.
+# claculate the geographic distance of a species native range centroid from the 
+# geographic center of europe.
 
-# load data
+# load data ---------------------------------------------------------------
+
 dr_non_native <- read_csv("Data/dr_non_native.csv")
 relatedness <- read_csv("Data/relatedness.csv")
 
-# calculate Europe centroid -----------------------------------------------
+# calculate europe centroid -----------------------------------------------
 
 # calculate mean centroid of Europe with wcvp data
-# get Europe's botanical country abbreviations
+# get europe's botanical country abbreviations
 europe <- get_wgsrpd3_codes("Europe")
 tdwg <- st_read("bot_countries/wgsrpd-master/level3/level3.shp")
 europe_shape <- tdwg %>% 
@@ -46,7 +47,7 @@ center_of_europe <- c(longitude = 28.21111, latitude = 59.55993)
 
 # species centroids --------------------------------------------------------
 
-# initialize a empty dataframe for the results
+# initialize an empty dataframe for the results
 mean_centroids <- data.frame(
   species = character(), 
   mean_longitude = numeric(), 
@@ -55,32 +56,30 @@ mean_centroids <- data.frame(
   stringsAsFactors = FALSE
 )
 
-
-#plant <- dr_non_native[310,1]$taxon_name
 # loop for every non-native plant in Europe
 for (plant in unique(dr_non_native$taxon_name)) {
-  # Extract distribution data
+  # extract distribution data
   distribution_data <- wcvp_distribution(plant)
   
-  # Transformation into a projected CRS (e.g. EPSG:3857)
+  # transformation into a projected crs
   distribution_data <- st_transform(distribution_data, crs = 3857)
   
-  # Calculate the centroids of the distribution areas
+  # calculate the centroids of the distribution areas
   country_centroids <- st_centroid(distribution_data)
   
-  # Transformation back to WGS 84 (EPSG:4326) for longitude and latitude
+  # transformation back to WGS 84 for longitude and latitude
   country_centroids <- st_transform(country_centroids, crs = 4326)
   
-  # Filter by native occurrences
+  # filter by native occurrences
   native_centroids <- country_centroids %>% filter(occurrence_type == "native")
   
   if (nrow(native_centroids) == 0) {
-    # Use introduced occurrences if no native occurrences are available
+    # use introduced occurrences if no native occurrences are available (cf hybrids)
     introduced_centroids <- country_centroids %>% filter(occurrence_type == "introduced")
     
     if (nrow(introduced_centroids) == 0) {
       message(paste("No occurrence data for:", plant))
-      next  # Skip if no data is available
+      next  # skip if no data is available
     }
     
     centroid_coords <- as.data.frame(st_coordinates(introduced_centroids))
@@ -88,24 +87,24 @@ for (plant in unique(dr_non_native$taxon_name)) {
     centroid_coords <- as.data.frame(st_coordinates(native_centroids))
   }
   
-  # Calculate the mean centroid
+  # calculate the mean centroid
   mean_centroid <- centroid_coords %>%
     summarize(
       mean_longitude = mean(X, na.rm = TRUE),
       mean_latitude = mean(Y, na.rm = TRUE)
     )
   
-  # Create an `sf` object for the mean centroid
+  # create an `sf` object for the mean centroid
   mean_centroid_sf <- st_sfc(st_point(c(mean_centroid$mean_longitude, mean_centroid$mean_latitude)), crs = 4326)
   mean_centroid_coords <- st_coordinates(mean_centroid_sf)
   
-  # Calculate the distance to the center of Europe in kilometers
+  # calculate the distance to the center of europe in kilometers
   distance_to_europe <- distGeo(
     c(mean_centroid_coords[1], mean_centroid_coords[2]), 
     c(center_of_europe["longitude"], center_of_europe["latitude"])
   ) / 1000  # Conversion from meters to kilometers
   
-  # Add the results to the dataframe
+  # add the results to the dataframe
   mean_centroids <- rbind(mean_centroids, data.frame(
     species = plant,
     mean_longitude = mean_centroid_coords[1],
@@ -133,12 +132,12 @@ write.csv(mean_centroids_filled, "Data/mean_centroids_filled.csv", row.names = F
 
 # inspect -----------------------------------------------------------------
 mean_centroids_filled <- read_csv("Data/mean_centroids_filled.csv")
-# check how many inside Europe
+# check how many inside europe
 sum(mean_centroids_filled$distance_to_europe_center < 2500, na.rm = TRUE)
 
 
-# viz centroids for SI
-# Get country borders as an sf object
+# visualze centroids for SI
+# get country borders as an sf object
 countries <- ne_countries(scale = "medium", returnclass = "sf")
 
 # plotting the distribution of non-native plants with mean centroids
